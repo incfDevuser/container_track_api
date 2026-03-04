@@ -1,0 +1,2 @@
+#PARA AGREGAR NUEVAS MIGRACIONES A LA BASE DE DATOS, CON POSTGRES + PRISMA
+docker compose exec backend npx prisma migrate dev --name add_chofer_role

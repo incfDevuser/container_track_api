@@ -30,4 +30,5 @@ enum Role {
   ADMIN
   BODEGUERO
   CARGADOR
+  CHOFER
 }
