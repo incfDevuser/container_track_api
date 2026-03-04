@@ -32,3 +32,88 @@ enum Role {
   CARGADOR
   CHOFER
 }
+
+// Tablas y CRUD para empresas de transporte, vehículos, rutas, etc. se pueden agregar aquí según sea necesario.
+
+//Entidad de empresas de transporte
+model TransportCompany {
+  id        String   @id @default(uuid())
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  drivers   Drivers[]
+  vehicles  Vehicle[]
+}
+
+//Entidad de conductores para las empresas de transporte
+model Driver {
+  id          String   @id @default(uuid())
+  companyId   String
+  company     TransportCompany @relation(fields: [companyId], references: [id])
+
+  userId      String?  @unique
+  user        User?    @relation(fields: [userId], references: [id])
+
+  fullName    String
+  documentId  String?
+  phone       String?
+  licenseType String?
+  licenseExpiresAt DateTime?
+
+  status      DriverStatus @default(ACTIVE)
+  assignments DriverVehicleAssignment[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([fullName])
+}
+//Entidad de vehículos para las empresas de transporte
+model Vehicle {
+  id         String   @id @default(uuid())
+  companyId  String
+  company    TransportCompany @relation(fields: [companyId], references: [id])
+
+  plate      String   @unique
+  type       String?
+  status     VehicleStatus @default(ACTIVE)
+
+  gpsExternalId String?
+
+  assignments DriverVehicleAssignment[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([companyId])
+}
+//Relacion entre conductores y vehículos para asignaciones temporales
+model DriverVehicleAssignment {
+  id        String   @id @default(uuid())
+  driverId  String
+  vehicleId String
+  driver    Driver   @relation(fields: [driverId], references: [id])
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+
+  startAt   DateTime @default(now())
+  endAt     DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([driverId])
+  @@index([vehicleId])
+}
+//Enums para los estadsos de los conductores y vehículos
+enum DriverStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum VehicleStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
