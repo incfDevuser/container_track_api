@@ -23,6 +23,7 @@ model User {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  driver    Driver?
 }
 
 enum Role {
@@ -39,11 +40,14 @@ enum Role {
 model TransportCompany {
   id        String   @id @default(uuid())
   name      String
+  email     String   @unique
+  phone     String?
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  drivers   Drivers[]
+  drivers   Driver[]
   vehicles  Vehicle[]
+  areas     InterestArea[]
 }
 
 //Entidad de conductores para las empresas de transporte
@@ -116,4 +120,36 @@ enum VehicleStatus {
   ACTIVE
   INACTIVE
   MAINTENANCE
+}
+
+model InterestArea {
+  id          String   @id @default(uuid())
+  companyId   String
+  company     TransportCompany @relation(fields: [companyId], references: [id])
+  name        String
+  description String?
+  polygon     Json
+  isActive    Boolean  @default(true)
+  points      AreaPoint[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([isActive])
+}
+
+model AreaPoint {
+  id               String   @id @default(uuid())
+  areaId           String
+  area             InterestArea @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  latitude         Float
+  longitude        Float
+  estimatedAt      DateTime?
+  isInsideArea     Boolean
+  isVehicleInPoint Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([areaId])
+  @@index([estimatedAt])
 }
